@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>HOME</title>
+
+<style>
+.container{
+	padding: 150px;
+	background-color: lightblue;
+}
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+</head>
+
+<body onload = "checkConnection()">
+	
+	<div class = "container">
+		<div class = "py-10 text-center">
+		<div class = "reload-warning">DO NOT RELOAD, YOU WILL BE LOGGED OUT!</div>
+			<a class = "yourstyle" href = "javascript:location.reload();" ><img src = "chattler.png" alt = "CHATTLER" height = "250" width = "400"></a>
+			
+			</div>
+			<div class = "username-label" id = "user"></div>
+			<div class = "column">
+				<div class = "py-5 text-center">
+					<div class = "mb-3" id="users">
+						<div class = "search-dropdown" id = "dropgroup">
+							<input class = "search-bar" id = "user-search" type = "text" placeholder = "Search for users" onclick = "searchBar()" onkeyup = "searchUsers()"></input>
+							<div id = "dropdown" class = "dropdown-content" style = "display: none"></div>
+						</div>
+						<button id = "select" class = "btn btn-primary" onclick = "setSelectedUser()">Select User</input>
+				</div>
+				</div>
+				<div class = "mb-3" id = "divSelectedUser">Please select a user!</div>
+				<div class="mb-3">
+					<div class="input-group" id="sendmessage">
+						
+						<input type="text" id="message" class="form-control"
+							placeholder="Message">
+						<div class="input-group-append">
+							<button id="sendMessageBtn" class="btn btn-primary"
+								onclick="send()">Send</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col" id="content"></div>
+				
+				<div>
+					<span class="float-right">
+						<button id="clear" class="btn btn-danger"
+							onclick="clearMessages()" >Clear</button>
+					</span>
+				</div>
+				
+			</div>
+						
+		</div>
+	</div>
+
+
+	
+	
+
+	<script th:src="@{/webjars/jquery/3.6.0/jquery.js}"
+		type="text/javascript"></script>
+	<script th:src="@{/webjars/sockjs-client/1.1.2/sockjs.js}"
+		type="text/javascript"></script>
+	<script th:src="@{/webjars/stomp-websocket/2.3.3/stomp.js}"
+		type="text/javascript"></script>
+	<script th:src="@{/webjars/bootstrap/5.2.0/js/bootstrap.min.js}"
+		type="text/javascript"></script>
+	<link th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"
+		rel="stylesheet" />
+	<script type="text/javascript">
+		
+		var userName = "";
+		var referrer = document.referrer;
+		var nameLength = userName.length;	
+		var userList;
+		var selectedUser = "";
+		var stompClient = null;
+		
+		
+		function checkConnection() {
+			if (document.referrer == null || document.referrer === "") {
+				alert("You aren't logged in! Redirecting to the log in page.");
+				window.location.replace("/");
+			}
+			else {
+				nameLength = userName.length;
+				referrer = document.referrer;
+				$.get('/rest/get-next', function(data) {userName = data;
+				$("#user").html("Your name: " + userName); nameLength = userName.length}, "text");
+				if (((window.performance.navigation && window.performance.navigation.type === 1) ||
+    					window.performance.getEntriesByType('navigation').map((nav) => nav.type)
+      					.includes('reload')) || referrer === "") {
+							  
+					alert("You're not logged in! Redirecting to the log in page.");
+					window.location.replace("/");
+				}
+				else {
+					$.post(
+					'/rest/user-connect',
+					{
+						username : userName
+					},
+					function(remoteAddr, status, xhr) {
+						var socket = new SockJS('/chat');
+						stompClient = Stomp.over(socket);
+						stompClient.connect({
+							username : userName
+						}, function() {
+							stompClient.subscribe('/topic/broadcast', function(
+									output) {
+								showMessage(createTextNode(JSON
+										.parse(output.body)));
+							});
+
+							stompClient.subscribe('/topic/active', function() {
+								updateUsers(userName);
+							});
+
+							stompClient.subscribe('/user/' + userName
+									+ '/queue/messages', function(output) {
+								showMessage(createTextNode(JSON
+										.parse(output.body)));
+										
+							sendConnection(' connected to server.');
+							setConnected(true);
+							});
+						}, function(err) {
+							alert('An error occured: ' + err);
+						});
+
+					}).done(function() {
+				// alert('Request done!'); 
+			}).fail(function(jqxhr, settings, ex) {
+				console.log('failed, ' + ex);
+			});
+			
+		}
+	}
+	}
+	
+	
+		function setConnected(connected) {
+			$("#from").prop("disabled", connected);
+			$("#connect").prop("disabled", connected);
+			$("#disconnect").prop("disabled", !connected);
+		}
+	
+		function sendConnection(message) {
+			var text = userName + message;
+			sendBroadcast({
+				from : 'server',
+				text : text
+			});
+		}
+			
+		function sendBroadcast(json) {
+			stompClient.send('/app/broadcast', {}, JSON.stringify(json));
+		}
+	
+		function searchBar() {
+			updateUsers();
+			document.getElementById("dropdown").style.display = "";
+		}
+		
+		function searchUsers() {
+			var contents = document.getElementById("user-search").value;
+			var users = document.getElementById("dropdown").getElementsByTagName("a");
+			var index1;
+			var index2;
+			var index3;
+			
+			for (index1 = 0; index1 < contents.length; ++index1) {
+				for (index2 = 0; index2 < users.length; ++index2) {
+					if (contents[index1] != users[index2][index1]) {
+						users[index2].style.display = "none";
+					}
+					else users[index2].style.display = "";
+				}
+			}
+		}
+
+		function disconnect() {
+			if (stompClient != null) {
+				$.post('/rest/user-disconnect', {
+					username : userName
+				}, function() {
+					sendConnection(' disconnected from server');
+
+					stompClient.disconnect(function() {
+						console.log('disconnected...');
+						setConnected(false);
+					});
+
+				}).done(function() {
+					// alert('Request done!'); 
+				}).fail(function(jqxhr, settings, ex) {
+					console.log('failed, ' + ex);
+				});
+			}
+			}
+
+		function send() {
+			var text = $("#message").val();
+			if (selectedUser == null) {
+				alert('Please select a user.');
+				return;
+			}
+			stompClient.send("/app/chat", {
+				'sender' : userName
+			}, JSON.stringify({
+				'from' : userName,
+				'text' : text,
+				'recipient' : selectedUser
+			}));
+			$("#message").val("");
+		}
+
+		function createTextNode(messageObj) {
+			var classAlert = 'alert-info';
+			var fromTo = messageObj.from;
+			var addTo = fromTo;
+			debugger;
+			if (userName == messageObj.from) {
+				fromTo = messageObj.recipient;
+				addTo = 'to: ' + fromTo;
+			}
+
+			if (userName != messageObj.from && messageObj.from != "server") {
+				classAlert = "alert-warning";
+			}
+
+			if (messageObj.from != "server") {
+				addTo = '<a href="javascript:void(0)" onclick="setSelectedUser(\''
+						+ fromTo + '\')">' + addTo + '</a>'
+			}
+			return '<div class="row alert ' + classAlert + '"><div class="col-md-8">'
+					+ messageObj.text
+					+ '</div><div class="col-md-8 text-right"><small>[<b>'
+					+ addTo
+					+ '</b> '
+					+ messageObj.time
+					+ ']</small>'
+					+ '</div></div>';
+		}
+
+		function showMessage(message) {
+			$("#content").html($("#content").html() + message);
+			$("#clear").show();
+		}
+
+		function clearMessages() {
+			$("#content").html("");
+			$("#clear").hide();
+		}
+
+		function setSelectedUser() {
+			selectedUser = document.getElementById("user-search").value;
+			if (selectedUser === "") {
+				$("#divSelectedUser").html("<span id = \"selectedUser\"class = \"badge badge-secondary\"></span>Please select a user!");
+			} else {
+				$("#divSelectedUser").html("<span id = \"selectedUser\"class = \"badge badge-secondary\"></span>" + selectedUser + " selected!");
+			}
+		}
+
+		function updateUsers() {
+			var numUsers;
+			var index;
+
+			var url = '/rest/active-users-except/' + userName;
+			
+			$.get(url, function(data) {
+				userList = data;
+				numUsers = userList.length;
+				
+				if (numUsers == 0) {
+					$("#dropdown").html("No users found!");
+				}
+				else {
+					$("#dropdown").html("");
+					for (index = 0; index < numUsers; index++) {
+						if (userList[index] != userName) {
+							$("#dropdown").html($("#dropdown").html() + "<div id = \"user" + index + "\" class = \"mb-3\" onclick = \"replaceText(this)\"><a href = \"#user" + index + "\">" + userList[index] + "</a></div>\n");
+						}
+					}
+				}
+			})
+					
+		}
+		
+		function replaceText(ele) {
+			var id = ele.id;
+			var index;
+			var number;
+			var numString = "";
+			
+			var url = '/rest/active-users-except/' + userName;
+			
+			for (index = id.length - 1; index >=0; index--) {
+				if (id[index] === 'r') {
+					for (++index; index < id.length; index++) {
+						numString = numString + id[index];
+					}
+					number = parseInt(numString);
+					break;
+				}
+			}
+			document.getElementById("user-search").value = userList[number];
+		}
+		
+		$(document).ready(function() {
+			
+			$("#message").keypress(function(event) {
+				if (event.keyCode == '13') {
+					// Cancel the default action, if needed
+					//event.preventDefault();
+					// Trigger the button element with a click
+					send();
+				}
+			});
+			
+		});
+	</script>
+</body>
+</html>

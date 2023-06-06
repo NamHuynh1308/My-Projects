@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>REGISTER</title>
+
+<style>
+.container{
+	padding: 150px;
+	background-color: lightblue;
+}
+</style>
+</head>
+
+<body>
+	<div class = "container">
+		<div class = "py-10 text-center">
+			<a class = "yourstyle" href = "javascript:location.reload();" ><img src = "chattler.png" alt = "CHATTLER" height = "250" width = "400"></a>
+			
+			</div>
+			<div class = "column">
+				<div class = "py-5 text-center">
+					<div class = "mb-3">
+						<div class = "info">
+							<label>Usernames must be 3-20 characters, passwords must be 8-20 characters.</label>
+							</div>
+						<form>
+							<div class = "username-field">
+								<input type = "text" id = "name" class = "form-control" required
+									placeholder = "Username (3-20 characters)"/>
+								</div>
+							<div class = "password-field">
+								<input type = "password" id = "pass" class = "form-control" required
+									placeholder = "Password (8-20 characters)"/>
+								</div>
+							<div class = "confirm-field">
+								<input type = "password" id = "confirm" class = "form-control" required
+									placeholder = "Confirm password"/>
+								</div>
+							<div class = "create-button">
+								<button type = "button" id = "create" 
+								class = "btn btn-success" onclick = "createAccount()">Create Account</button>
+							</div>
+							</form>
+							<div class = "return">
+								<a href = "/">Return to log in</a>
+								</div>
+						</div>
+					</div> 
+				</div>
+				<div class = "row">
+					<div class = "col" id = "content"></div>
+				
+				<div>
+					<span class = "float-right"></span>
+					</div>
+				</div>
+			</div>
+				
+				
+	
+	<script th:src="@{/webjars/jquery/3.6.0/jquery.js}"
+		type="text/javascript"></script>
+	<script th:src="@{/webjars/sockjs-client/1.1.2/sockjs.js}"
+		type="text/javascript"></script>
+	<script th:src="@{/webjars/stomp-websocket/2.3.3/stomp.js}"
+		type="text/javascript"></script>
+	<script th:src="@{/webjars/bootstrap/5.2.0/js/bootstrap.min.js}"
+		type="text/javascript"></script>
+	<link th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"
+		rel="stylesheet" />
+	<script type="text/javascript">
+	
+		var userName = $("#name").val();
+		var passWord = $("#pass").val();
+		var confirmed = $("#confirm").val();
+		
+		var nameField = document.getElementById("name");
+		var passField = document.getElementById("pass");
+		var confirmField = document.getElementById("confirm");
+		
+		nameField.addEventListener("keypress", function(event) {
+			if (event.key === "Enter") {
+				event.preventDefault();
+				document.getElementById("create").click();
+			}
+		});
+		
+		passField.addEventListener("keypress", function(event) {
+			if (event.key === "Enter") {
+				event.preventDefault();
+				document.getElementById("create").click();
+			}
+		});
+		
+		confirmField.addEventListener("keypress", function(event) {
+			if (event.key === "Enter") {
+				event.preventDefault();
+				document.getElementById("create").click();
+			}
+		});
+		
+		function createAccount() {
+			userName = $("#name").val();
+			passWord = $("#pass").val();
+			confirmed = $("#confirm").val();
+			
+			if (userName == null || passWord == null || confirmed == null || userName === "" || passWord === "" || confirmed === "") {
+				alert("Please fill out all fields!");
+				return;
+			}
+			
+			if (userName.length < 3 || userName.length > 20){
+				alert("Username must be between 3 and 20 characters. Please try again.");
+				return;
+			}
+			
+			if (passWord.length < 8 || passWord.length > 20){
+				alert("Password must be between 8 and 20 characters. Please try again.");
+				return;
+			}
+			
+			
+			$.get('/rest/check-name', {username : userName}, function(data) {
+				if (data === "false"){
+					alert("This username already exists. Please try another username or log in to an existing account.");
+					return;
+				}
+				else {
+					
+					$.get('/rest/create-user', {username: userName, password: passWord}, function(data) {
+						alert(data);
+						window.location.replace("/");
+					}, "text");
+				}
+			}, "text");
+			
+			if (confirmed != passWord) {
+				alert("The two passwords do not match. Please retry.")
+				return;
+			}
+			
+			
+		}
+	</script>
+
+							
