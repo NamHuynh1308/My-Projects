@@ -1,6 +1,9 @@
 # My-Projects
+
 ### Chattler -> Web application
 ##### _Using Java, Javascript
 
-### Machine Learning Project -> Train agent to solve the frozen lake maze using algorithms
+### Machine Learning Projects: 
+##### _Reinforced Learning: Training agent to solve frozen lake maze
+##### _Supervised Learning: Using data to train, predict values and calculate accuracy
 ##### _Using Python
