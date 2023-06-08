@@ -1,0 +1,90 @@
+import pandas as pd
+import numpy as np
+from sklearn.neighbors import NearestNeighbors
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+# read in the data from car.data
+df = pd.read_csv('car.data', names=['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'class'])
+
+# define a mapping for each categorical attribute
+buying_map = {'vhigh': 4, 'high': 3, 'med': 2, 'low': 1}
+maint_map = {'vhigh': 4, 'high': 3, 'med': 2, 'low': 1}
+doors_map = {'2': 2, '3': 3, '4': 4, '5more': 5}
+persons_map = {'2': 2, '4': 4, 'more': 5}
+lug_boot_map = {'small': 1, 'med': 2, 'big': 3}
+safety_map = {'low': 1, 'med': 2, 'high': 3}
+class_map = {'unacc': 1, 'acc': 2, 'good': 3, 'vgood': 4}
+
+# apply the mapping to the categorical attributes
+df['buying'] = df['buying'].map(buying_map)
+df['maint'] = df['maint'].map(maint_map)
+df['doors'] = df['doors'].map(doors_map)
+df['persons'] = df['persons'].map(persons_map)
+df['lug_boot'] = df['lug_boot'].map(lug_boot_map)
+df['safety'] = df['safety'].map(safety_map)
+df['class'] = df['class'].map(class_map)
+
+samples = df.iloc[:, :-1]  # select all columns except the last one
+values = df.iloc[:, -1]   # select only the last column
+
+samples = samples.to_numpy()
+values = values.to_numpy()
+
+train_samples, test_samples, train_values, test_values = train_test_split(samples, values, test_size=0.2, random_state=42)
+train_samples, validation_samples, train_values, validation_values = train_test_split(train_samples, train_values, test_size=0.25, random_state=42)
+
+#-------------------------------------------------------------------
+
+#train the model
+output = []
+for k in range(len(validation_samples)):
+    x = validation_samples[k] 
+    w = np.zeros(3)
+    upper = 0 
+    lower = 0    
+    neigh = NearestNeighbors(n_neighbors=3)
+    neigh.fit(train_samples)
+    distance, indices = neigh.kneighbors([x])
+
+    #get weights
+    for i in range (0,3):
+        if (distance[0][i] == 0): distance[0][i] = 1e-6
+        w[i] = 1 / (distance[0][i] * distance[0][i]) 
+
+    #get values to calculate predicted values  
+    for i in range (0,3):
+        upper += train_values[indices[0][i]] * w[i]
+        lower += w[i]  
+
+    predicted_val = upper / lower   
+    predicted_val = round(predicted_val)  
+    output.append(predicted_val)  
+   
+#calculate accuracy
+check = 0 
+accuracy = []
+for s in range (len(validation_samples)):
+    if (output[s] == validation_values[s]): 
+        accuracy.append(1)
+    else:
+        accuracy.append(0)
+    
+
+ctr = 1
+act_accur = []
+for input in accuracy:
+    act_accur.append(np.mean(accuracy[0:ctr]))
+    ctr+=1
+print(str(len(validation_samples))+"\n")
+print("Accuracy of validate data: " + str(accuracy)) 
+print(act_accur)
+
+# Plot the accuracy
+plt.plot(act_accur)
+plt.xlabel('Number of Predictions')
+plt.ylabel("Accuracy Percentage")
+plt.title("k-NN Percentage Accuracy")
+
+plt.legend(['Accuracy'], loc='upper right')
+plt.show()    
