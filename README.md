@@ -8,3 +8,6 @@
 ##### _Supervised Learning: Using data to train, predict values and calculate accuracy
 ###### +Using data of car.dat from UCI data
 ##### _Using Python
+
+### Frontend Projects: Create and develop frontend for webpages
+##### _Using Javascript, CSS, Jquery
