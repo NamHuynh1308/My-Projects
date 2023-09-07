@@ -1,0 +1,48 @@
+body{
+    padding-top: 20px;
+}
+
+.container{
+    padding: 0 0;
+}
+
+ul.nav.nav-justified{
+    padding: 0 0 0 0;
+}
+
+.nav li{
+    margin: auto;
+    padding: 10px 0;
+}
+
+.nav li a{
+    text-decoration: none;
+}
+
+.nav-justified{
+    background-color: #eee;
+    border-radius: 5px;
+    border: 3px solid blue;
+}
+
+ul.nav.nav-justified li a:hover{
+    background-color: lightblue;
+}
+
+.container2{
+    padding-left: 70px;
+    padding-top: 70px;
+    padding-bottom: 70px;    
+    text-align: center;
+}
+
+.container2 .btn{
+    padding: 15px 25px;
+    font-size: 20px;;
+}
+
+.col-lg-4 {
+    text-align: center;
+}
+
+

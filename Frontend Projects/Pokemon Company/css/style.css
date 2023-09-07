@@ -1,0 +1,102 @@
+.dropdown-item, .dropdown-header {
+    text-align: center;
+}
+
+.dropdown-menu {
+    background-color: white;
+}
+
+.dropdown-item {
+    background-color: white;
+    color: black;
+}
+
+.dropdown-divider{
+    border-color:black;
+}
+
+body{
+    padding-bottom: 20px;
+    color: #5a5a5a;
+}
+
+.navbar-wrapper{
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 20;
+}
+
+.navbar-wrapper > .container{
+    padding-right:0;
+    padding-left:0;
+}
+
+/* slides shrink => width auto fixed */
+.navbar-wrapper .navbar .container{
+    width: auto;
+}
+
+.navbar-wrapper .navbar{
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+.carousel{
+    height: 500px;
+    margin-bottom: 50px; 
+}
+
+.carousel .carousel-item{
+    height: 500px;
+    background-color: #7777; 
+}
+
+.carousel-inner > .carousel-item > img{
+    position: absolute;
+    height: 500px;
+    min-width: 100%;
+    top: 0;
+    left: 0;
+}
+
+.carousel-caption{
+    color: black;
+    background-color: lightblue;
+    opacity: 0.7;
+    z-index: 10;
+}
+
+.team .col-lg-4{
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.team h2{
+    color: rgba(50,50,50,0.8)
+}
+
+.team p{
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+.divider{
+    margin: 40px 0;
+}
+
+.content-text{
+    padding-left: 50px;
+    text-align: center;
+    padding-top: 150px;
+}
+
+
+footer {
+    margin: 0 120px;
+}
+
+footer .row .right{
+    text-align: right;
+}

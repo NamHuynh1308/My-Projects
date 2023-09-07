@@ -1,0 +1,28 @@
+body {
+    background: rgb(62, 133, 156);
+    font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+h1 {
+    text-align: center;
+    font-size: 4em;
+    text-decoration: underline;
+    margin: 50px 100px;
+    background-color: rgb(41, 88, 173)
+}
+
+.container {
+    text-align: center;
+    padding-top: 150px;
+    font-size: 3em;
+}
+
+#getPass {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: green;
+}
+ 
+.pl{
+    background-color: orange;
+}

@@ -1,0 +1,50 @@
+body{
+    font-family: 'Merriweather', serif;
+}
+
+.nav-sidebar{
+    margin: 40px -20px 20px 20px;
+}
+
+.nav-sidebar li{
+    list-style-type: none;
+    padding: 20px 20px;
+}
+
+.nav-sidebar li:hover{
+    background-color: lightgrey;
+}
+
+.main{
+    padding: 20px;
+}
+
+.placeholders{
+    margin-top: 10px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.placeholders img{
+    display: inline;
+    border-radius: 50%;
+    padding-bottom: 20px;
+}
+
+footer{
+    text-align: center;
+    text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+    body {
+        background-color: lightblue;
+    }
+}
+
+@media (min-width: 800px) {
+    body {
+        background-color: lightyellow;
+    }
+}
+
