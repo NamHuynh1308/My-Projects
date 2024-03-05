@@ -274,21 +274,54 @@ for season_index, season_df in enumerate(all_seasons):
 temporal_distribution /= len(all_seasons)
 
 
-##################################################################################################################
+
+# Assuming temporal_distribution contains the normalized temporal distribution
+# Divide the day into sections
+sections = ['Midnight', 'Morning', 'Afternoon', 'Evening']
+section_hours = [(0, 6), (6, 12), (12, 18), (18, 24)]  # Start and end hours for each section
+
+# Initialize arrays to store aggregated visitation counts for each section
+seasonal_section_visits = np.zeros((len(all_seasons), len(sections)))
+
+# Aggregate visitation counts for each section across all seasons
+for season_index, season_visits in enumerate(temporal_distribution):
+    for section_index, (start_hour, end_hour) in enumerate(section_hours):
+        # Sum visitation counts for hours within the current section
+        section_visits = np.sum(season_visits[start_hour:end_hour])
+        seasonal_section_visits[season_index][section_index] = section_visits
+
 # Plotting
 plt.figure(figsize=(12, 8))
 seasons = ['Winter', 'Spring', 'Summer', 'Fall']
+bar_width = 0.15
 for i in range(len(seasons)):
-    plt.bar(np.arange(24) + i * 0.2, temporal_distribution[i], width=0.2, label=seasons[i])
+    plt.bar(np.arange(len(sections)) + i * bar_width, seasonal_section_visits[i], width=bar_width, label=seasons[i])
 
 plt.title('Temporal Distribution of Park Usage for Peak Times During the Day (Seasonal)')
-plt.xlabel('Hour of the Day')
+plt.xlabel('Time Section')
 plt.ylabel('Average Number of Visits')
-plt.xticks(np.arange(24) + 0.3, range(24))
+plt.xticks(np.arange(len(sections)) + bar_width * 1.5, sections)
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.show()
+
+
+##################################################################################################################
+# # Plotting
+# plt.figure(figsize=(12, 8))
+# seasons = ['Winter', 'Spring', 'Summer', 'Fall']
+# for i in range(len(seasons)):
+#     plt.bar(np.arange(24) + i * 0.2, temporal_distribution[i], width=0.2, label=seasons[i])
+
+# plt.title('Temporal Distribution of Park Usage for Peak Times During the Day (Seasonal)')
+# plt.xlabel('Hour of the Day')
+# plt.ylabel('Average Number of Visits')
+# plt.xticks(np.arange(24) + 0.3, range(24))
+# plt.legend()
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
 
 
 
